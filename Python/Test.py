@@ -1,5 +1,7 @@
 from datetime import datetime
 import csv
+import mysql.connector
+
 name = input("Name : ")
 gender = input("Gender : ")
 d,m,y = input("Enter Birthday (DD/MM/YYYY): ").split("/")
@@ -21,3 +23,26 @@ with open("data.csv", "a") as file:
         writer = csv.DictWriter(file, fieldnames=["name","gender","date","time"])
         writer.writerow({"name" : name,"gender" : gender,"date" : date,"time" : time})
 print("Data Saved")
+
+conn = mysql.connector.connect(
+    host="localhost",       # Change if your MySQL is hosted remotely
+    user="root",            # Your MySQL username
+    database="test"  # The database you want to use
+)
+
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS data (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50),
+    gender VARCHAR(50),
+    date VARCHAR(50),
+    time VARCHAR(50)
+)
+""")
+
+sql = "INSERT INTO data (name, gender , date , time) VALUES (%s, %s, %s, %s)"
+values = (name, gender, date, time)
+cursor.execute(sql, values)
+conn.commit()
